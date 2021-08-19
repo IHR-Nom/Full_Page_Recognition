@@ -1,0 +1,7 @@
+torch~=1.9.0
+torchvision~=0.10.0
+numpy~=1.21.1
+transformers~=4.9.1
+tqdm~=4.61.2
+Pillow~=8.3.1
+imgaug~=0.4.0
