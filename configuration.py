@@ -41,7 +41,7 @@ class Config(object):
         self.dir = '/data1/hong/datasets/coco'
         self.iam_dir = '/data1/hong/datasets/iam'
         self.wikitext_dir = '/data1/hong/datasets/wikitext'
-        self.font_dir = 'fonts'
+        self.font_dir = '/data2/mvu/fonts'
         self.limit = -1
         self.max_img_w = 1239
         self.max_img_h = 1078
