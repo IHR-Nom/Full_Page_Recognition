@@ -48,6 +48,7 @@ end_token = tokenizer.convert_tokens_to_ids(tokenizer._sep_token)
 
 val_transform = torchvision.transforms.Compose([
         torchvision.transforms.Resize(299),
+        lambda x: np.asarray(x),
         torchvision.transforms.ToTensor(),
         lambda x: x * 255.,
         lambda x: (x - 127.5) / 128.

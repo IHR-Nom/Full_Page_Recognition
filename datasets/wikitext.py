@@ -1,3 +1,5 @@
+import glob
+
 from torch.utils.data import Dataset
 import torchvision.transforms.functional as TF
 import torchvision as tv
@@ -74,32 +76,40 @@ class WikiTextImage(Dataset):
                     paragraph += line
                     paragraph_len += len(words)
 
-        train_set_size = round(len(self.image_ground_truth) * 0.5)
-
-        if mode == 'validation':
-            self.image_ground_truth = self.image_ground_truth[:]
-        if mode == 'training':
-            self.image_ground_truth = self.image_ground_truth[: train_set_size]
+        # train_set_size = round(len(self.image_ground_truth) * 0.2)
+        #
+        # if mode == 'validation':
+        #     self.image_ground_truth = self.image_ground_truth[:]
+        # if mode == 'training':
+        #     self.image_ground_truth = self.image_ground_truth[: train_set_size]
 
         self.tokenizer = BertTokenizer.from_pretrained(
             'bert-base-uncased', do_lower=True)
         self.max_length = max_length + 1
 
     def __len__(self):
-        return len(self.image_ground_truth)
+        return 30000
 
-    def __getitem__(self, idx):
-        random.seed()
+    def __getitem__(self, _):
+        idx = random.randint(0, len(self.image_ground_truth) - 1)
+        font_size_map = {
+            'ReenieBeanie-Regular.ttf': (63, 66),
+            'JustMeAgainDownHere-Regular.ttf': (55, 60),
+            'TheGirlNextDoor-Regular.ttf': (45, 49)
+        }
 
         # Generate image from its ground truth
         image = Image.new('RGB', (self.max_img_w, self.max_img_h), (255, 255, 255))
         drawer = ImageDraw.Draw(image)
-        current_font_size, sentence_w = random.randint(40, 55), 0
+        current_font_size, sentence_w = random.randint(50, 55), 0
         spacing = random.randint(1, 3) / 2.
         margin = random.randint(int(self.max_img_w * 5 / 100), int(self.max_img_w * 10 / 100))
         margin_top = random.randint(int(self.max_img_h * 3 / 100), int(self.max_img_h * 6 / 100))
-        random_font = random.choice([file for file in os.listdir(self.font_dir) if file.endswith('.ttf')])
-        font = ImageFont.truetype(os.path.join(self.font_dir, random_font), current_font_size)
+        random_font = random.choice(glob.glob(os.path.join(self.font_dir, '**', '*.[o|t]tf')))
+        if os.path.basename(random_font) in font_size_map:
+            min_size, max_size = font_size_map[os.path.basename(random_font)]
+            current_font_size = random.randint(min_size, max_size)
+        font = ImageFont.truetype(random_font, current_font_size)
         new_gt, current_line = [], []
         max_word_height = spacing
         for word in self.image_ground_truth[idx].split():
@@ -111,11 +121,12 @@ class WikiTextImage(Dataset):
             else:
                 new_gt.append(current_line)
                 current_line = []
-
+        if len(current_line) > 0:
+            new_gt.append(current_line)
         y = margin_top
         for line in new_gt:
             drawer.text((margin, y), ' '.join(line), font=font, align='left', fill='#000')
-            y += max_word_height * 1.1
+            y += max_word_height
         gt = '\n'.join([' '.join(line) for line in new_gt])
 
         image = image.convert('L')
