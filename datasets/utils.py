@@ -8,6 +8,7 @@ import cv2
 import json
 import os
 import numpy as np
+
 MAX_DIM = 299
 
 
@@ -140,7 +141,7 @@ def resize_filling(image, new_size, color=None):
 def bincount_app(a):
     image_to_array = np.array(a)
     a2D = image_to_array.reshape(-1, image_to_array.shape[-1])
-    col_range = (256, 256, 256) # generically : a2D.max(0)+1
+    col_range = (256, 256, 256)  # generically : a2D.max(0)+1
     a1D = np.ravel_multi_index(a2D.T, col_range)
     return np.unravel_index(np.bincount(a1D).argmax(), col_range)
 
@@ -155,3 +156,10 @@ class AddGaussianNoise(object):
 
     def __repr__(self):
         return self.__class__.__name__ + '(mean={0}, std={1})'.format(self.mean, self.std)
+
+
+def get_parent_folder(image_dir, levels=1):
+    parent_dir = image_dir
+    for i in range(levels):
+        parent_dir = os.path.dirname(parent_dir)
+    return parent_dir

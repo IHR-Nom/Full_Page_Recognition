@@ -45,3 +45,10 @@ class Config(object):
         self.limit = -1
         self.max_img_w = 1239
         self.max_img_h = 1078
+
+        # ChuNom Dataset
+        self.chunom_max_img_w = 495
+        self.chunom_max_img_h = 763
+        self.chunom_dir = '/data1/hong/datasets/NomDB/handwritten/pages'
+        self.synthetic_chunom_dir = '/data1/hong/datasets/NomDB/handwritten/patches_preprocessed'
+        self.generated_chunom_dir = '/data1/hong/datasets/NomDB/handwritten/nlp'
