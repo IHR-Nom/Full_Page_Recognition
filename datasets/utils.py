@@ -123,7 +123,7 @@ def resize_filling(image, new_size, color=None):
     #
     blank_image[:] = color
 
-    x_offset, y_offset = int((n_width - width) / 2), int((n_width - width) / 2)
+    x_offset, y_offset = int((n_width - width) / 2), int((n_height - height) / 2)
     # Here, y_offset+height <= blank_image.shape[0] and x_offset+width <= blank_image.shape[1]
     blank_image[y_offset:y_offset + height, x_offset:x_offset + width] = masked_image.copy()
     # plt.figure()
