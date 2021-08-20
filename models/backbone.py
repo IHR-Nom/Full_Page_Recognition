@@ -55,9 +55,9 @@ class BackboneBase(nn.Module):
 
     def __init__(self, backbone: nn.Module, train_backbone: bool, num_channels: int, return_interm_layers: bool):
         super().__init__()
-        for name, parameter in backbone.named_parameters():
-            if not train_backbone or 'layer2' not in name and 'layer3' not in name and 'layer4' not in name:
-                parameter.requires_grad_(False)
+        # for name, parameter in backbone.named_parameters():
+        #     if not train_backbone or 'layer2' not in name and 'layer3' not in name and 'layer4' not in name:
+        #         parameter.requires_grad_(False)
         if return_interm_layers:
             return_layers = {"layer1": "0", "layer2": "1", "layer3": "2", "layer4": "3"}
         else:
@@ -109,7 +109,7 @@ class Joiner(nn.Sequential):
 
 def build_backbone(config):
     position_embedding = build_position_encoding(config)
-    train_backbone = config.lr_backbone > 0
+    train_backbone = True
     return_interm_layers = False
     backbone = Backbone(config.backbone, train_backbone, return_interm_layers, config.dilation)
     model = Joiner(backbone, position_embedding)
