@@ -10,7 +10,6 @@ from models import utils, caption
 from imgaug import augmenters as iaa
 
 
-
 def main(config):
     device = torch.device(config.device)
     print(f'Initializing Device: {device}')
@@ -26,16 +25,8 @@ def main(config):
                        for p in model.parameters() if p.requires_grad)
     print(f"Number of params: {n_parameters}")
 
-    param_dicts = [
-        {"params": [p for n, p in model.named_parameters(
-        ) if "backbone" not in n and p.requires_grad]},
-        {
-            "params": [p for n, p in model.named_parameters() if "backbone" in n and p.requires_grad],
-            "lr": config.lr_backbone,
-        },
-    ]
     optimizer = torch.optim.AdamW(
-        param_dicts, lr=config.lr, weight_decay=config.weight_decay)
+        model.parameters(), lr=config.lr, weight_decay=config.weight_decay)
     lr_scheduler = torch.optim.lr_scheduler.StepLR(optimizer, config.lr_drop)
 
     augment = iaa.Sequential([
@@ -54,6 +45,7 @@ def main(config):
 
     val_transform = torchvision.transforms.Compose([
         torchvision.transforms.Resize(299),
+        lambda x: np.asarray(x),
         torchvision.transforms.ToTensor(),
         lambda x: x * 255.,
         lambda x: (x - 127.5) / 128.
@@ -85,8 +77,8 @@ def main(config):
     # iam_dataset_train[0]
 
     # Synthetic IAM dataset
-    synthetic_iam_dataset_train = synthetic_iam.build_dataset(config, train_transform, mode='training')
-    synthetic_iam_dataset_val = synthetic_iam.build_dataset(config, val_transform, mode='validation')
+    synthetic_iam_dataset_train = synthetic_iam.build_dataset(config, train_transform, mode='training', repeat=10)
+    synthetic_iam_dataset_val = synthetic_iam.build_dataset(config, val_transform, mode='validation', repeat=10)
     print(f"Synthetic IAM Train: {len(synthetic_iam_dataset_train)}")
     print(f"Synthetic IAM Valid: {len(synthetic_iam_dataset_val)}")
     # synthetic_iam_dataset_train[0]
@@ -96,6 +88,7 @@ def main(config):
     # wikitext_dataset_val = wikitext.build_dataset(config, mode='validation')
     print(f"WikiText Train: {len(wikitext_dataset_train)}")
     # print(f"WikiText Valid: {len(wikitext_dataset_val)}")
+    # wikitext_dataset_train[0]
 
     dataset_train = torch.utils.data.ConcatDataset([iam_dataset_train, synthetic_iam_dataset_train, wikitext_dataset_train])
     dataset_val = torch.utils.data.ConcatDataset([iam_dataset_val, synthetic_iam_dataset_val])

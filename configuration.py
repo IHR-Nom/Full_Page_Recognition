@@ -2,7 +2,6 @@ class Config(object):
     def __init__(self):
 
         # Learning Rates
-        self.lr_backbone = 1e-4
         self.lr = 5e-4
 
         # Epochs
@@ -21,7 +20,7 @@ class Config(object):
         self.seed = 42
         self.batch_size = 20
         self.num_workers = 8
-        self.checkpoint = './checkpoint_lr5e-4.pth'
+        self.checkpoint = './checkpoint.pth'
         self.clip_max_norm = 0.1
 
         # Transformer
@@ -42,7 +41,7 @@ class Config(object):
         self.dir = '/data1/hong/datasets/coco'
         self.iam_dir = '/data1/hong/datasets/iam'
         self.wikitext_dir = '/data1/hong/datasets/wikitext'
-        self.font_dir = '/data1/hong/font'
+        self.font_dir = 'fonts'
         self.limit = -1
         self.max_img_w = 1239
         self.max_img_h = 1078
