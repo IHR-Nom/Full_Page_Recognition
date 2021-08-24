@@ -47,8 +47,11 @@ class Config(object):
         self.max_img_h = 1078
 
         # ChuNom Dataset
-        self.chunom_max_img_w = 495
-        self.chunom_max_img_h = 763
-        self.chunom_dir = '/data1/hong/datasets/NomDB/handwritten/pages'
-        self.synthetic_chunom_dir = '/data1/hong/datasets/NomDB/handwritten/patches_preprocessed'
-        self.generated_chunom_dir = '/data1/hong/datasets/NomDB/handwritten/nlp'
+        self.chunom_max_img_h = 495
+        self.chunom_max_img_w = 763
+        self.chunom_max_patch_h = 46
+        self.chunom_max_patch_w = 300
+        self.chunom_dir = '/data1/hong/datasets/chunom/handwritten/pages'
+        self.synthetic_chunom_dir = '/data1/hong/datasets/chunom/handwritten/patches'
+        self.generated_chunom_dir = '/data1/hong/datasets/chunom/handwritten/nlp/nlp_data.csv'
+        self.chunom_font_dir = 'data1/hong/nom_fonts'
