@@ -7,7 +7,7 @@ from torch.utils.data import Dataset
 from transformers import BertTokenizer
 
 from . import utils
-from .utils import nested_tensor_from_tensor_list
+from .utils import nested_tensor_from_tensor_list, get_parent_folder
 
 
 class ChuNomImage(Dataset):
@@ -25,6 +25,7 @@ class ChuNomImage(Dataset):
                 self.image_list.append(os.path.join(root, img_folder, "images", img))
 
         self.image_list = sorted(self.image_list)
+        print(len(self.image_list))
         train_set_size = round(len(self.image_list) * 0.75)
         val_set_size = round(len(self.image_list) * 0.2)
 
@@ -43,7 +44,7 @@ class ChuNomImage(Dataset):
         return len(self.image_list)
 
     def __getitem__(self, idx):
-        parent_dir = utils.get_parent_folder(self.image_list[idx], 2)
+        parent_dir = get_parent_folder(self.image_list[idx], 2)
         image_name = os.path.relpath(self.image_list[idx], parent_dir)
         # Get image from original image
         with Image.open(self.image_list[idx]) as img:
@@ -56,7 +57,7 @@ class ChuNomImage(Dataset):
             img = utils.resize_filling(np.asarray(img), (self.max_img_w, self.max_img_h))
             img = Image.fromarray(img)
             image = img.convert('L')
-            # image.save(os.path.basename(os.path.splitext(image_name)[0]) + ".jpg")
+            image.save(os.path.basename(os.path.splitext(image_name)[0]) + ".jpg")
 
         # Get image ground truth
         image_ground_truth = get_image_ground_truth(image_name, os.path.join(parent_dir, "annotation.json"))

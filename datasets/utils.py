@@ -146,6 +146,13 @@ def bincount_app(a):
     return np.unravel_index(np.bincount(a1D).argmax(), col_range)
 
 
+def get_parent_folder(image_dir, levels=1):
+    parent_dir = image_dir
+    for i in range(levels):
+        parent_dir = os.path.dirname(parent_dir)
+    return parent_dir
+
+
 class AddGaussianNoise(object):
     def __init__(self, mean=0., std=1.):
         self.std = std
@@ -158,8 +165,4 @@ class AddGaussianNoise(object):
         return self.__class__.__name__ + '(mean={0}, std={1})'.format(self.mean, self.std)
 
 
-def get_parent_folder(image_dir, levels=1):
-    parent_dir = image_dir
-    for i in range(levels):
-        parent_dir = os.path.dirname(parent_dir)
-    return parent_dir
+
