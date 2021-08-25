@@ -28,6 +28,9 @@ def train_one_epoch(model, criterion, data_loader,
             outputs = model(samples, caps[:, :-1], cap_masks[:, :-1])
             loss = criterion(outputs.permute(0, 2, 1), caps[:, 1:])
 
+            # The loss needs to be scaled, since we are going to accumulate the gradients
+            loss = loss / steps_per_batch
+
             loss_value = loss.item()
             epoch_loss += loss_value
 
@@ -39,8 +42,8 @@ def train_one_epoch(model, criterion, data_loader,
             count += 1
             if count == steps_per_batch:
 
-                # if max_norm > 0:
-                #     torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm)
+                if max_norm > 0:
+                    torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm)
 
                 optimizer.step()
                 optimizer.zero_grad()
