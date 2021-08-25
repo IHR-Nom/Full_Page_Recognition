@@ -35,20 +35,14 @@ def main(config):
                           iaa.OneOf([iaa.Dropout(p=(0, 0.02))])),
         ])
     train_transform = torchvision.transforms.Compose([
-        torchvision.transforms.Resize(299),
         lambda x: np.asarray(x),
         lambda x: augment.augment_image(x),
-        torchvision.transforms.ToTensor(),
-        lambda x: x * 255.,
-        lambda x: (x - 127.5) / 128.
+        torchvision.transforms.ToTensor()
     ])
 
     val_transform = torchvision.transforms.Compose([
-        torchvision.transforms.Resize(299),
         lambda x: np.asarray(x),
-        torchvision.transforms.ToTensor(),
-        lambda x: x * 255.,
-        lambda x: (x - 127.5) / 128.
+        torchvision.transforms.ToTensor()
     ])
 
     # dataset_train = coco.build_dataset(config, mode='training')
@@ -100,14 +94,14 @@ def main(config):
     sampler_val = torch.utils.data.SequentialSampler(dataset_val)
 
     batch_sampler_train = torch.utils.data.BatchSampler(
-        sampler_train, config.batch_size, drop_last=True
+        sampler_train, config.mini_step, drop_last=True
     )
 
     data_loader_train = DataLoader(
         dataset_train, batch_sampler=batch_sampler_train, num_workers=config.num_workers)
-    data_loader_val = DataLoader(dataset_val, config.batch_size,
+    data_loader_val = DataLoader(dataset_val, config.mini_step,
                                  sampler=sampler_val, drop_last=False, num_workers=config.num_workers)
-    data_loader_test = DataLoader(iam_dataset_test, config.batch_size,
+    data_loader_test = DataLoader(iam_dataset_test, config.mini_step,
                                   drop_last=False, num_workers=config.num_workers)
 
     # if os.path.exists(config.checkpoint):
@@ -125,13 +119,15 @@ def main(config):
 
     for epoch in range(config.start_epoch, config.epochs):
         print(f"Epoch: {epoch}")
+        steps_per_batch = config.batch_size // config.mini_step
         epoch_loss = train_one_epoch(
-            model, criterion, data_loader_train, optimizer, device, epoch, config.clip_max_norm)
+            model, criterion, data_loader_train, optimizer, device, epoch, config.clip_max_norm, steps_per_batch)
         lr_scheduler.step()
         print(f"Training Loss: {epoch_loss}")
 
         validation_loss = evaluate(model, criterion, data_loader_val, device)
         if validation_loss < best_val:
+            print(f'Saving model at epoch {epoch} with val loss: {validation_loss}')
             torch.save({
                 'model': model.state_dict(),
                 'optimizer': optimizer.state_dict(),

@@ -21,7 +21,7 @@ def nested_tensor_from_tensor_list(tensor_list: List[Tensor], img_width, img_hei
     # TODO make this more general
     if tensor_list[0].ndim == 3:
         # TODO make it support different-sized images
-        max_size = [1, 299, 343]
+        max_size = [1, img_height, img_width]
         # min_size = tuple(min(s) for s in zip(*[img.shape for img in tensor_list]))
         batch_shape = [len(tensor_list)] + max_size
         b, c, h, w = batch_shape

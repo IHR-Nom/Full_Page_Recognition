@@ -28,6 +28,7 @@ class Caption(nn.Module):
         hs = self.transformer(self.input_proj(src), mask,
                               pos[-1], target, target_mask)
         out = self.mlp(hs.permute(1, 0, 2))
+
         return out
 
 
