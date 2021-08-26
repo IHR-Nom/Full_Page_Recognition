@@ -25,7 +25,6 @@ class ChuNomImage(Dataset):
                 self.image_list.append(os.path.join(root, img_folder, "images", img))
 
         self.image_list = sorted(self.image_list)
-        print(len(self.image_list))
         train_set_size = round(len(self.image_list) * 0.75)
         val_set_size = round(len(self.image_list) * 0.2)
 

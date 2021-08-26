@@ -50,7 +50,7 @@ class Config(object):
         self.chunom_max_img_h = 495
         self.chunom_max_img_w = 763
         self.chunom_max_patch_h = 46
-        self.chunom_max_patch_w = 300
+        self.chunom_max_patch_w = 350
         self.chunom_dir = '/data1/hong/datasets/chunom/handwritten/pages'
         self.synthetic_chunom_dir = '/data1/hong/datasets/chunom/handwritten/patches'
         self.generated_chunom_dir = '/data1/hong/datasets/chunom/handwritten/nlp/nlp_data.csv'

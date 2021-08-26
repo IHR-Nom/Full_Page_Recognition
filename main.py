@@ -4,7 +4,7 @@ import torchvision
 from torch.utils.data import DataLoader
 
 from configuration import Config
-from datasets import synthetic_iam, wikitext, iam, chunom
+from datasets import synthetic_iam, wikitext, iam, chunom, synthetic_chunom, generated_chunom
 from engine import train_one_epoch, evaluate
 from models import utils, caption
 from imgaug import augmenters as iaa
@@ -74,6 +74,20 @@ def main(config):
     print(f"Chu Nom Train: {len(chunom_dataset_train)}")
     print(f"Chu Nom Valid: {len(chunom_dataset_val)}")
     # chunom_dataset_train[0]
+
+    # Synthetic ChuNom dataset
+    synthetic_chunom_dataset_train = synthetic_chunom.build_dataset(config, train_transform, mode='training')
+    synthetic_chunom_dataset_val = synthetic_chunom.build_dataset(config, val_transform, mode='validation')
+    print(f"Synthetic Chu Nom Train: {len(synthetic_chunom_dataset_train)}")
+    print(f"Synthetic Chu Nom Valid: {len(synthetic_chunom_dataset_val)}")
+    synthetic_chunom_dataset_train[0]
+
+    # Generated ChuNom dataset
+    generated_chunom_dataset_train = generated_chunom.build_dataset(config, train_transform, mode='training')
+    generated_chunom_dataset_val = generated_chunom.build_dataset(config, val_transform, mode='validation')
+    print(f"Generated Chu Nom Train: {len(generated_chunom_dataset_train)}")
+    print(f"Generated Chu Nom Valid: {len(generated_chunom_dataset_val)}")
+    generated_chunom_dataset_train[0]
 
     # # IAM dataset
     # iam_dataset_train = iam.build_dataset(config, train_transform, mode='training')
