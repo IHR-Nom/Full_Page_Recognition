@@ -11,7 +11,7 @@ import re
 from PIL import Image, ImageDraw, ImageFont
 from transformers import BertTokenizer
 
-from .utils import nested_tensor_from_tensor_list
+from .utils import nested_tensor_from_tensor_list, tokenizer
 
 MAX_DIM = 299
 
@@ -83,8 +83,7 @@ class WikiTextImage(Dataset):
         # if mode == 'training':
         #     self.image_ground_truth = self.image_ground_truth[: train_set_size]
 
-        self.tokenizer = BertTokenizer.from_pretrained(
-            'bert-base-uncased', do_lower=True)
+        self.tokenizer = tokenizer
         self.max_length = max_length + 1
 
     def __len__(self):
@@ -95,7 +94,8 @@ class WikiTextImage(Dataset):
         font_size_map = {
             'ReenieBeanie-Regular.ttf': (63, 66),
             'JustMeAgainDownHere-Regular.ttf': (55, 60),
-            'TheGirlNextDoor-Regular.ttf': (45, 49)
+            'TheGirlNextDoor-Regular.ttf': (45, 49),
+            'Autography.otf': (52, 56)
         }
 
         # Generate image from its ground truth
@@ -140,7 +140,7 @@ class WikiTextImage(Dataset):
         image = nested_tensor_from_tensor_list(image.unsqueeze(0), self.max_img_w, self.max_img_h)
 
         caption_encoded = self.tokenizer.encode_plus(
-            gt, max_length=self.max_length, pad_to_max_length=True,
+            gt, max_length=self.max_length, padding='max_length',
             return_attention_mask=True, return_token_type_ids=False, truncation=True)
 
         caption = np.array(caption_encoded['input_ids'])

@@ -1,19 +1,14 @@
-import statistics
-
-from torch.utils.data import Dataset
-import torchvision.transforms.functional as TF
-import torchvision as tv
-
-import xml.etree.ElementTree as ET
-from PIL import Image
-import numpy as np
-import random
 import os
+import random
+import xml.etree.ElementTree as ET
 
-from transformers import BertTokenizer
+import numpy as np
+import torchvision.transforms.functional as TF
+from PIL import Image
+from torch.utils.data import Dataset
 
 from . import utils
-from .utils import nested_tensor_from_tensor_list
+from .utils import nested_tensor_from_tensor_list, tokenizer
 
 MAX_DIM = 299
 
@@ -67,8 +62,7 @@ class IAMImage(Dataset):
         else:
             self.image_list = self.image_list[train_set_size + val_set_size:]
 
-        self.tokenizer = BertTokenizer.from_pretrained(
-            'bert-base-uncased', do_lower=True)
+        self.tokenizer = tokenizer
         self.max_length = max_length + 1
 
     def __len__(self):
@@ -103,7 +97,7 @@ class IAMImage(Dataset):
         image = nested_tensor_from_tensor_list(image.unsqueeze(0), self.max_img_w, self.max_img_h)
 
         caption_encoded = self.tokenizer.encode_plus(
-            image_ground_truth, max_length=self.max_length, pad_to_max_length=True, return_attention_mask=True,
+            image_ground_truth, max_length=self.max_length, padding='max_length', return_attention_mask=True,
             return_token_type_ids=False, truncation=True)
 
         caption = np.array(caption_encoded['input_ids'])

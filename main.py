@@ -26,8 +26,7 @@ def main(config):
                        for p in model.parameters() if p.requires_grad)
     print(f"Number of params: {n_parameters}")
 
-    optimizer = torch.optim.AdamW(
-        model.parameters(), lr=config.lr, weight_decay=config.weight_decay)
+    optimizer = torch.optim.Adam(model.parameters(), lr=config.lr)
     lr_scheduler = torch.optim.lr_scheduler.StepLR(optimizer, config.lr_drop)
 
     augment = iaa.Sequential([

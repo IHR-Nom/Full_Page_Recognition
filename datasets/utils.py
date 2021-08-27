@@ -8,7 +8,13 @@ import cv2
 import json
 import os
 import numpy as np
+from transformers import BertTokenizer
+
 MAX_DIM = 299
+
+tokenizer = BertTokenizer.from_pretrained('bert-base-uncased', do_lower=True)
+tokenizer.add_tokens(['\n'], special_tokens=True)
+pad_token = tokenizer.convert_tokens_to_ids(tokenizer._pad_token)
 
 
 def read_json(file_name):

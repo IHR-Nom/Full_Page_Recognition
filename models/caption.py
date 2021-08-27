@@ -2,6 +2,7 @@ import torch
 from torch import nn
 import torch.nn.functional as F
 
+from datasets.utils import pad_token
 from .utils import NestedTensor, nested_tensor_from_tensor_list
 from .backbone import build_backbone
 from .transformer import build_transformer
@@ -53,6 +54,6 @@ def build_model(config):
     transformer = build_transformer(config)
 
     model = Caption(backbone, transformer, config.hidden_dim, config.vocab_size)
-    criterion = torch.nn.CrossEntropyLoss()
+    criterion = torch.nn.CrossEntropyLoss(ignore_index=pad_token)
 
     return model, criterion

@@ -2,11 +2,11 @@ class Config(object):
     def __init__(self):
 
         # Learning Rates
-        self.lr = 1e-3
+        self.lr = 2e-4
 
         # Epochs
         self.epochs = 200
-        self.lr_drop = 10
+        self.lr_drop = 20
         self.start_epoch = 0
         self.weight_decay = 1e-4
 
@@ -18,8 +18,8 @@ class Config(object):
         # Basic
         self.device = 'cuda'
         self.seed = 42
-        self.batch_size = 64
-        self.mini_step = 4
+        self.batch_size = 112
+        self.mini_step = 14
         self.num_workers = 8
         self.checkpoint = './checkpoint.pth'
         self.clip_max_norm = 0.1
@@ -34,8 +34,8 @@ class Config(object):
 
         self.enc_layers = 6
         self.dec_layers = 6
-        self.dim_feedforward = 2048
-        self.nheads = 8
+        self.dim_feedforward = 1024
+        self.nheads = 4
         self.pre_norm = True
 
         # Dataset
