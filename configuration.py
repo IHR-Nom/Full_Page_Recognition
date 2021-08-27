@@ -18,7 +18,7 @@ class Config(object):
         # Basic
         self.device = 'cuda'
         self.seed = 42
-        self.batch_size = 112
+        self.batch_size = 28
         self.mini_step = 14
         self.num_workers = 8
         self.checkpoint = './checkpoint.pth'
@@ -29,7 +29,7 @@ class Config(object):
         self.pad_token_id = 0
         self.max_position_embeddings = 128
         self.layer_norm_eps = 1e-12
-        self.dropout = 0.1
+        self.dropout = 0.5
         self.vocab_size = 30522
 
         self.enc_layers = 6
