@@ -124,10 +124,14 @@ class WikiTextImage(Dataset):
         if len(current_line) > 0:
             new_gt.append(current_line)
         y = margin_top
+        final_gt = []
         for line in new_gt:
+            if y + max_word_height >= self.max_img_h:
+                break
             drawer.text((margin, y), ' '.join(line), font=font, align='left', fill='#000')
+            final_gt.append(' '.join(line))
             y += max_word_height
-        gt = '\n'.join([' '.join(line) for line in new_gt])
+        gt = '\n'.join(final_gt)
 
         image = image.convert('L')
 

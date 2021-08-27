@@ -60,13 +60,6 @@ class NestedTensor(object):
         return str(self.tensors)
 
 
-val_transform = tv.transforms.Compose([
-    tv.transforms.Resize(299),
-    tv.transforms.ToTensor(),
-    tv.transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
-])
-
-
 def padding_image(image_path, config):
     with Image.open(os.path.join(image_path)) as img:
         img = img.convert('RGB')

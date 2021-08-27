@@ -2,6 +2,7 @@ import numpy as np
 import torch
 import torchvision
 from torch.utils.data import DataLoader
+from tqdm import tqdm
 
 from configuration import Config
 from datasets import synthetic_iam, wikitext, iam

@@ -2,11 +2,11 @@ class Config(object):
     def __init__(self):
 
         # Learning Rates
-        self.lr = 5e-4
+        self.lr = 1e-3
 
         # Epochs
         self.epochs = 200
-        self.lr_drop = 20
+        self.lr_drop = 10
         self.start_epoch = 0
         self.weight_decay = 1e-4
 

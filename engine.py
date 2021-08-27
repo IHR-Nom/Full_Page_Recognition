@@ -1,10 +1,9 @@
 # Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved
-import statistics
-
-import torch
 
 import math
 import sys
+
+import torch
 import tqdm
 
 from models import utils
@@ -28,11 +27,11 @@ def train_one_epoch(model, criterion, data_loader,
             outputs = model(samples, caps[:, :-1], cap_masks[:, :-1])
             loss = criterion(outputs.permute(0, 2, 1), caps[:, 1:])
 
-            # The loss needs to be scaled, since we are going to accumulate the gradients
-            loss = loss / steps_per_batch
-
             loss_value = loss.item()
             epoch_loss += loss_value
+
+            # The loss needs to be scaled, since we are going to accumulate the gradients
+            loss = loss / steps_per_batch
 
             if not math.isfinite(loss_value):
                 print(f'Loss is {loss_value}, stopping training')
@@ -52,6 +51,7 @@ def train_one_epoch(model, criterion, data_loader,
             pbar.update(1)
 
     return epoch_loss / total
+
 
 @torch.no_grad()
 def evaluate(model, criterion, data_loader, device):

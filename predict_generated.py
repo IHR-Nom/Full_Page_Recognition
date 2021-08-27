@@ -54,18 +54,6 @@ val_transform = torchvision.transforms.Compose([
         torchvision.transforms.ToTensor()
     ])
 
-image = Image.open("/data1/hong/datasets/iam/formsI-Z/p03-163.png")
-start_x, start_y, end_x, end_y, width, image_ground_truth = iam.get_image_size_and_ground_truth_of_form("p03-163.png", "/data1/hong/datasets/iam/xml")
-image = image.crop((start_x, start_y, end_x + width, end_y))
-image = image.convert('RGB')
-image = utils.resize_filling(np.asarray(image), (config.max_img_w, config.max_img_h))
-image = Image.fromarray(image)
-image = image.convert('L')
-image = val_transform(image)
-image = image.unsqueeze(0)
-image = image.to(device)
-image = nested_tensor_from_tensor_list(image, config.max_img_w, config.max_img_h)
-
 
 def create_caption_and_mask(start_token, max_length):
     caption_template = torch.zeros((1, max_length), dtype=torch.long, device=device)
@@ -77,12 +65,8 @@ def create_caption_and_mask(start_token, max_length):
     return caption_template, mask_template
 
 
-caption, cap_mask = create_caption_and_mask(
-    start_token, config.max_position_embeddings)
-
-
 @torch.no_grad()
-def evaluate():
+def evaluate(image, caption, cap_mask):
     model.eval()
     for i in range(config.max_position_embeddings - 1):
         predictions = model(image, caption, cap_mask)
@@ -97,9 +81,17 @@ def evaluate():
 
     return caption
 
+wikitext_dataset_train = wikitext.build_dataset(config, val_transform, mode='training')
+for images, masks, caps, cap_masks in wikitext_dataset_train:
+    caption, cap_mask = create_caption_and_mask(start_token, config.max_position_embeddings)
+    images = images.to(device)
+    caption = caption.to(device)
+    cap_mask = cap_mask.to(device)
+    image = nested_tensor_from_tensor_list(images.unsqueeze(0), config.max_img_w, config.max_img_h)
+    output = evaluate(image, caption, cap_mask)
 
-output = evaluate()
-result = tokenizer.decode(output[0].tolist(), skip_special_tokens=True)
-# result = tokenizer.decode(output[0], skip_special_tokens=True)
-print(image_ground_truth)
-print(result.capitalize())
+    result = tokenizer.decode(output[0].tolist())
+    gt = tokenizer.decode(caps.tolist())
+    # result = tokenizer.decode(output[0], skip_special_tokens=True)
+    print(gt)
+    print(result.capitalize())
