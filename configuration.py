@@ -19,7 +19,7 @@ class Config(object):
         self.device = 'cuda'
         self.seed = 42
         self.batch_size = 64
-        self.mini_step = 5
+        self.mini_step = 12
         self.num_workers = 8
         self.checkpoint = './checkpoint.pth'
         self.clip_max_norm = 0.1
@@ -44,5 +44,5 @@ class Config(object):
         self.wikitext_dir = '/data1/hong/datasets/wikitext'
         self.font_dir = '/data2/mvu/fonts'
         self.limit = -1
-        self.max_img_w = 900
-        self.max_img_h = 900
+        self.max_img_w = 400
+        self.max_img_h = 400

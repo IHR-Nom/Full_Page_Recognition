@@ -55,7 +55,7 @@ class WikiTextImage(Dataset):
 
         with open(self.root, 'r') as file:
             paragraph = ""
-            max_paragraph_len = 150
+            max_paragraph_len = 140
             paragraph_len = 0
             for line in file:
                 if line.startswith(" \n"):
@@ -66,7 +66,7 @@ class WikiTextImage(Dataset):
                     paragraph += ' '.join(words[: (max_paragraph_len - paragraph_len)])
                     for _ in range(repeat):
                         self.image_ground_truth.append(paragraph)
-                    max_paragraph_len = random.randint(0, 150)
+                    # max_paragraph_len = random.randint(0, 150)
                     # for char in paragraph:
                     #     tokenizer.add_char(char)
                     paragraph = " "
@@ -99,7 +99,7 @@ class WikiTextImage(Dataset):
         }
 
         # Generate image from its ground truth
-        image = self.cropper(self.default_bg)
+        image = Image.new('RGB', (self.max_img_w, self.max_img_h), (255, 255, 255))
         drawer = ImageDraw.Draw(image)
         current_font_size, sentence_w = random.randint(50, 55), 0
         spacing = random.randint(1, 3) / 2.
@@ -110,7 +110,7 @@ class WikiTextImage(Dataset):
         if os.path.basename(random_font) in font_size_map:
             min_size, max_size = font_size_map[os.path.basename(random_font)]
             current_font_size = random.randint(min_size, max_size)
-        font = ImageFont.truetype(random_font, size=25)
+        font = ImageFont.truetype(random_font, size=18)
         new_gt, current_line = [], []
         max_word_height = spacing
         for word in self.image_ground_truth[idx].split():
@@ -127,7 +127,7 @@ class WikiTextImage(Dataset):
         y = margin_top
         final_gt = []
         for line in new_gt:
-            if y + max_word_height >= self.max_img_h:
+            if y + 2 * max_word_height >= self.max_img_h:
                 break
             drawer.text((margin, y), ' '.join(line), font=font, align='left', fill='#000')
             final_gt.append(' '.join(line))
