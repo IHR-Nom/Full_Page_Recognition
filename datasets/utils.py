@@ -10,11 +10,14 @@ import os
 import numpy as np
 from transformers import BertTokenizer
 
+from datasets.character_tokenizer import CharacterTokenizer
+
 MAX_DIM = 299
 
-tokenizer = BertTokenizer.from_pretrained('bert-base-uncased', do_lower=True)
-tokenizer.add_tokens(['\n'], special_tokens=True)
-pad_token = tokenizer.convert_tokens_to_ids(tokenizer._pad_token)
+pad_token = 0
+tokenizer = CharacterTokenizer()
+tokenizer.add_char('\n')
+tokenizer.add_char(' ')
 
 
 def read_json(file_name):
@@ -27,7 +30,7 @@ def nested_tensor_from_tensor_list(tensor_list: List[Tensor], img_width, img_hei
     # TODO make this more general
     if tensor_list[0].ndim == 3:
         # TODO make it support different-sized images
-        max_size = [1, img_height, img_width]
+        max_size = list(tensor_list[0].size())
         # min_size = tuple(min(s) for s in zip(*[img.shape for img in tensor_list]))
         batch_shape = [len(tensor_list)] + max_size
         b, c, h, w = batch_shape
@@ -122,7 +125,7 @@ def resize_filling(image, new_size, color=None):
     #
     blank_image[:] = color
 
-    x_offset, y_offset = int((n_width - width) / 2), int((n_height - height) / 2)
+    x_offset, y_offset = int((n_width - width) / 2), int((n_height - height) / 10)
     # Here, y_offset+height <= blank_image.shape[0] and x_offset+width <= blank_image.shape[1]
     blank_image[y_offset:y_offset + height, x_offset:x_offset + width] = masked_image.copy()
     # plt.figure()

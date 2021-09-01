@@ -1,5 +1,7 @@
 import glob
 
+import torch
+import torchvision.transforms
 from torch.utils.data import Dataset
 import torchvision.transforms.functional as TF
 import torchvision as tv
@@ -53,8 +55,7 @@ class WikiTextImage(Dataset):
 
         with open(self.root, 'r') as file:
             paragraph = ""
-            max_paragraph_len = 100
-            max_line_len = 10
+            max_paragraph_len = 150
             paragraph_len = 0
             for line in file:
                 if line.startswith(" \n"):
@@ -63,53 +64,53 @@ class WikiTextImage(Dataset):
                 words = line.split()
                 if (paragraph_len + len(words)) > max_paragraph_len:
                     paragraph += ' '.join(words[: (max_paragraph_len - paragraph_len)])
-                    paragraph_words = paragraph.split()
-                    paragraph = " "
-                    for i in range(0, len(paragraph_words), max_line_len):
-                        paragraph += ' '.join(paragraph_words[i: i + max_line_len])
-                        # paragraph += "\n"
                     for _ in range(repeat):
                         self.image_ground_truth.append(paragraph)
+                    max_paragraph_len = random.randint(0, 150)
+                    # for char in paragraph:
+                    #     tokenizer.add_char(char)
                     paragraph = " "
                     paragraph_len = 0
                 else:
                     paragraph += line
                     paragraph_len += len(words)
 
-        # train_set_size = round(len(self.image_ground_truth) * 0.2)
-        #
-        # if mode == 'validation':
-        #     self.image_ground_truth = self.image_ground_truth[:]
-        # if mode == 'training':
-        #     self.image_ground_truth = self.image_ground_truth[: train_set_size]
+        self.mode = mode
 
         self.tokenizer = tokenizer
         self.max_length = max_length + 1
+        with Image.open('/data2/mvu/bg/bg.jpeg') as file:
+            self.default_bg = file.convert('RGB')
+        self.cropper = torchvision.transforms.RandomCrop((self.max_img_w, self.max_img_h))
 
     def __len__(self):
-        return 30000
+        if self.mode == 'training':
+            return 30000
+        return len(self.image_ground_truth)
 
-    def __getitem__(self, _):
-        idx = random.randint(0, len(self.image_ground_truth) - 1)
+    def __getitem__(self, idx):
+        if self.mode == 'training':
+            idx = random.randint(0, len(self.image_ground_truth) - 1)
         font_size_map = {
             'ReenieBeanie-Regular.ttf': (63, 66),
             'JustMeAgainDownHere-Regular.ttf': (55, 60),
-            'TheGirlNextDoor-Regular.ttf': (45, 49),
+            'TheGirlNextDoor-Regular.ttf': (45, 45),
             'Autography.otf': (52, 56)
         }
 
         # Generate image from its ground truth
-        image = Image.new('RGB', (self.max_img_w, self.max_img_h), (255, 255, 255))
+        image = self.cropper(self.default_bg)
         drawer = ImageDraw.Draw(image)
         current_font_size, sentence_w = random.randint(50, 55), 0
         spacing = random.randint(1, 3) / 2.
         margin = random.randint(int(self.max_img_w * 5 / 100), int(self.max_img_w * 10 / 100))
         margin_top = random.randint(int(self.max_img_h * 3 / 100), int(self.max_img_h * 6 / 100))
-        random_font = random.choice(glob.glob(os.path.join(self.font_dir, '**', '*.[o|t]tf')))
+        # random_font = random.choice(glob.glob(os.path.join(self.font_dir, '**', '*.[o|t]tf')))
+        random_font = '/data2/mvu/fonts/veteran_typewriter/veteran typewriter.ttf'
         if os.path.basename(random_font) in font_size_map:
             min_size, max_size = font_size_map[os.path.basename(random_font)]
             current_font_size = random.randint(min_size, max_size)
-        font = ImageFont.truetype(random_font, current_font_size)
+        font = ImageFont.truetype(random_font, size=25)
         new_gt, current_line = [], []
         max_word_height = spacing
         for word in self.image_ground_truth[idx].split():
@@ -139,15 +140,9 @@ class WikiTextImage(Dataset):
             image = self.transform(image)
         image = nested_tensor_from_tensor_list(image.unsqueeze(0), self.max_img_w, self.max_img_h)
 
-        caption_encoded = self.tokenizer.encode_plus(
-            gt, max_length=self.max_length, padding='max_length',
-            return_attention_mask=True, return_token_type_ids=False, truncation=True)
-
-        caption = np.array(caption_encoded['input_ids'])
-        cap_mask = (
-                1 - np.array(caption_encoded['attention_mask'])).astype(bool)
-
-        return image.tensors.squeeze(0), image.mask.squeeze(0), caption, cap_mask
+        caption, cap_mask = self.tokenizer.encode([gt], max_length=self.max_length)
+        cap_mask = (1 - cap_mask).type(torch.bool).squeeze(0)
+        return image.tensors.squeeze(0), image.mask.squeeze(0), caption.squeeze(0), cap_mask
 
 
 def build_dataset(config, transforms, mode='training'):

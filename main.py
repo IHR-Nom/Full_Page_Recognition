@@ -30,13 +30,14 @@ def main(config):
     lr_scheduler = torch.optim.lr_scheduler.StepLR(optimizer, config.lr_drop)
 
     augment = iaa.Sequential([
-            iaa.Sometimes(0.35, iaa.GaussianBlur(sigma=(0, 1.5))),
+            iaa.Sometimes(0.35, iaa.GaussianBlur(sigma=(0, 3))),
             iaa.Sometimes(0.35,
-                          iaa.OneOf([iaa.Dropout(p=(0, 0.02))])),
+                          iaa.OneOf([iaa.Dropout(p=(0, 0.1))]))
         ])
     train_transform = torchvision.transforms.Compose([
+        torchvision.transforms.RandomRotation(5, fill=255),
         lambda x: np.asarray(x),
-        lambda x: augment.augment_image(x),
+        # lambda x: augment.augment_image(x),
         torchvision.transforms.ToTensor()
     ])
 
@@ -63,29 +64,29 @@ def main(config):
     #                              sampler=sampler_val, drop_last=False, num_workers=config.num_workers)
 
     # IAM dataset
-    iam_dataset_train = iam.build_dataset(config, train_transform, mode='training')
-    iam_dataset_val = iam.build_dataset(config, val_transform, mode='validation')
-    iam_dataset_test = iam.build_dataset(config, val_transform, mode='test')
-    print(f"IAM Train: {len(iam_dataset_train)}")
-    print(f"IAM Valid: {len(iam_dataset_val)}")
-    # iam_dataset_train[0]
-
-    # Synthetic IAM dataset
-    synthetic_iam_dataset_train = synthetic_iam.build_dataset(config, train_transform, mode='training', repeat=10)
-    synthetic_iam_dataset_val = synthetic_iam.build_dataset(config, val_transform, mode='validation', repeat=10)
-    print(f"Synthetic IAM Train: {len(synthetic_iam_dataset_train)}")
-    print(f"Synthetic IAM Valid: {len(synthetic_iam_dataset_val)}")
+    # iam_dataset_train = iam.build_dataset(config, train_transform, mode='training')
+    # iam_dataset_val = iam.build_dataset(config, val_transform, mode='validation')
+    # iam_dataset_test = iam.build_dataset(config, val_transform, mode='test')
+    # print(f"IAM Train: {len(iam_dataset_train)}")
+    # print(f"IAM Valid: {len(iam_dataset_val)}")
+    # # iam_dataset_train[0]
+    #
+    # # Synthetic IAM dataset
+    # synthetic_iam_dataset_train = synthetic_iam.build_dataset(config, train_transform, mode='training', repeat=10)
+    # synthetic_iam_dataset_val = synthetic_iam.build_dataset(config, val_transform, mode='validation', repeat=10)
+    # print(f"Synthetic IAM Train: {len(synthetic_iam_dataset_train)}")
+    # print(f"Synthetic IAM Valid: {len(synthetic_iam_dataset_val)}")
     # synthetic_iam_dataset_train[0]
 
     # WikiText 2 dataset
     wikitext_dataset_train = wikitext.build_dataset(config, train_transform, mode='training')
-    # wikitext_dataset_val = wikitext.build_dataset(config, mode='validation')
+    wikitext_dataset_val = wikitext.build_dataset(config, val_transform, mode='validation')
     print(f"WikiText Train: {len(wikitext_dataset_train)}")
     # print(f"WikiText Valid: {len(wikitext_dataset_val)}")
     # wikitext_dataset_train[0]
 
-    dataset_train = torch.utils.data.ConcatDataset([iam_dataset_train, synthetic_iam_dataset_train, wikitext_dataset_train])
-    dataset_val = torch.utils.data.ConcatDataset([iam_dataset_val, synthetic_iam_dataset_val])
+    dataset_train = torch.utils.data.ConcatDataset([wikitext_dataset_train])
+    dataset_val = torch.utils.data.ConcatDataset([wikitext_dataset_val])
 
     print(f"Train: {len(dataset_train)}")
     print(f"Valid: {len(dataset_val)}")
@@ -101,8 +102,8 @@ def main(config):
         dataset_train, batch_sampler=batch_sampler_train, num_workers=config.num_workers)
     data_loader_val = DataLoader(dataset_val, config.mini_step,
                                  sampler=sampler_val, drop_last=False, num_workers=config.num_workers)
-    data_loader_test = DataLoader(iam_dataset_test, config.mini_step,
-                                  drop_last=False, num_workers=config.num_workers)
+    # data_loader_test = DataLoader(iam_dataset_test, config.mini_step,
+    #                               drop_last=False, num_workers=config.num_workers)
 
     # if os.path.exists(config.checkpoint):
     #     print("Loading Checkpoint...")
@@ -114,8 +115,8 @@ def main(config):
 
     print("Start Training..")
     best_val = 99999
-    with open("test_file_list.txt", "w+") as test_file:
-        test_file.writelines(iam_dataset_test.image_list)
+    # with open("test_file_list.txt", "w+") as test_file:
+    #     test_file.writelines(iam_dataset_test.image_list)
 
     for epoch in range(config.start_epoch, config.epochs):
         print(f"Epoch: {epoch}")
@@ -138,8 +139,8 @@ def main(config):
 
         print(f"Validation Loss: {validation_loss}")
 
-        test_loss = evaluate(model, criterion, data_loader_test, device)
-        print(f"Test Loss: {test_loss}")
+        # test_loss = evaluate(model, criterion, data_loader_test, device)
+        # print(f"Test Loss: {test_loss}")
 
 
 if __name__ == "__main__":

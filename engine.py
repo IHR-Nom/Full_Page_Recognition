@@ -31,7 +31,7 @@ def train_one_epoch(model, criterion, data_loader,
             epoch_loss += loss_value
 
             # The loss needs to be scaled, since we are going to accumulate the gradients
-            # loss = loss / steps_per_batch
+            loss = loss / steps_per_batch
 
             if not math.isfinite(loss_value):
                 print(f'Loss is {loss_value}, stopping training')
@@ -39,16 +39,17 @@ def train_one_epoch(model, criterion, data_loader,
 
             loss.backward()
             count += 1
-            # if count == steps_per_batch:
+            if count == steps_per_batch:
 
-            # if max_norm > 0:
-            #     torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm)
+                # if max_norm > 0:
+                #     torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm)
 
-            optimizer.step()
-            optimizer.zero_grad()
-            count = 0
+                optimizer.step()
+                optimizer.zero_grad()
+                count = 0
 
             pbar.update(1)
+            pbar.set_description("Current train loss: %f" % loss_value)
 
     return epoch_loss / total
 

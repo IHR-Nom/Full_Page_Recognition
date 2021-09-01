@@ -5,7 +5,7 @@ from transformers import BertTokenizer
 from PIL import Image
 import argparse
 
-from datasets.utils import nested_tensor_from_tensor_list
+from datasets.utils import nested_tensor_from_tensor_list, tokenizer
 from models import caption
 from datasets import coco, utils, wikitext, iam
 from configuration import Config
@@ -44,10 +44,9 @@ else:
     model.load_state_dict(checkpoint['model'])
     model.to(device)
 
-tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
 
-start_token = tokenizer.convert_tokens_to_ids(tokenizer._cls_token)
-end_token = tokenizer.convert_tokens_to_ids(tokenizer._sep_token)
+start_token = tokenizer.start_token
+end_token = tokenizer.end_token
 
 val_transform = torchvision.transforms.Compose([
         lambda x: np.asarray(x),
@@ -73,7 +72,7 @@ def evaluate(image, caption, cap_mask):
         predictions = predictions[:, i, :]
         predicted_id = torch.argmax(predictions, axis=-1)
 
-        if predicted_id[0] == 102:
+        if predicted_id[0] == end_token:
             return caption
 
         caption[:, i + 1] = predicted_id[0]
@@ -84,14 +83,11 @@ def evaluate(image, caption, cap_mask):
 wikitext_dataset_train = wikitext.build_dataset(config, val_transform, mode='training')
 for images, masks, caps, cap_masks in wikitext_dataset_train:
     caption, cap_mask = create_caption_and_mask(start_token, config.max_position_embeddings)
-    images = images.to(device)
-    caption = caption.to(device)
-    cap_mask = cap_mask.to(device)
-    image = nested_tensor_from_tensor_list(images.unsqueeze(0), config.max_img_w, config.max_img_h)
+    image = nested_tensor_from_tensor_list(images.to(device).unsqueeze(0), config.max_img_w, config.max_img_h)
     output = evaluate(image, caption, cap_mask)
 
     result = tokenizer.decode(output[0].tolist())
     gt = tokenizer.decode(caps.tolist())
     # result = tokenizer.decode(output[0], skip_special_tokens=True)
     print(gt)
-    print(result.capitalize())
+    print(result)

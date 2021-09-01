@@ -15,11 +15,11 @@ class Transformer(nn.Module):
                  return_intermediate_dec=False):
         super().__init__()
 
-        # encoder_layer = TransformerEncoderLayer(d_model, nhead, dim_feedforward,
-        #                                         dropout, activation, normalize_before)
-        # encoder_norm = nn.LayerNorm(d_model) if normalize_before else None
-        # self.encoder = TransformerEncoder(
-        #     encoder_layer, num_encoder_layers, encoder_norm)
+        encoder_layer = TransformerEncoderLayer(d_model, nhead, dim_feedforward,
+                                                dropout, activation, normalize_before)
+        encoder_norm = nn.LayerNorm(d_model) if normalize_before else None
+        self.encoder = TransformerEncoder(
+            encoder_layer, num_encoder_layers, encoder_norm)
 
         self.embeddings = DecoderEmbeddings(config)
         decoder_layer = TransformerDecoderLayer(d_model, nhead, dim_feedforward,
@@ -49,8 +49,8 @@ class Transformer(nn.Module):
         query_embed = self.embeddings.position_embeddings.weight.unsqueeze(1)
         query_embed = query_embed.repeat(1, bs, 1)
 
-        # memory = self.encoder(src, src_key_padding_mask=mask, pos=pos_embed)
-        hs = self.decoder(tgt, src, memory_key_padding_mask=mask, tgt_key_padding_mask=tgt_mask,
+        memory = self.encoder(src, src_key_padding_mask=mask, pos=pos_embed)
+        hs = self.decoder(tgt, memory, memory_key_padding_mask=mask, tgt_key_padding_mask=tgt_mask,
                           pos=pos_embed, query_pos=query_embed,
                           tgt_mask=generate_square_subsequent_mask(len(tgt)).to(tgt.device))
 

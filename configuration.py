@@ -18,19 +18,19 @@ class Config(object):
         # Basic
         self.device = 'cuda'
         self.seed = 42
-        self.batch_size = 28
-        self.mini_step = 14
+        self.batch_size = 64
+        self.mini_step = 5
         self.num_workers = 8
         self.checkpoint = './checkpoint.pth'
         self.clip_max_norm = 0.1
 
         # Transformer
-        self.hidden_dim = 256
+        self.hidden_dim = 260
         self.pad_token_id = 0
-        self.max_position_embeddings = 128
+        self.max_position_embeddings = 1100
         self.layer_norm_eps = 1e-12
         self.dropout = 0.5
-        self.vocab_size = 30522
+        self.vocab_size = 72
 
         self.enc_layers = 6
         self.dec_layers = 6
@@ -44,5 +44,5 @@ class Config(object):
         self.wikitext_dir = '/data1/hong/datasets/wikitext'
         self.font_dir = '/data2/mvu/fonts'
         self.limit = -1
-        self.max_img_w = 1239
-        self.max_img_h = 1078
+        self.max_img_w = 900
+        self.max_img_h = 900
