@@ -66,7 +66,7 @@ class WikiTextImage(Dataset):
                     paragraph += ' '.join(words[: (max_paragraph_len - paragraph_len)])
                     for _ in range(repeat):
                         self.image_ground_truth.append(paragraph)
-                    # max_paragraph_len = random.randint(0, 150)
+                    max_paragraph_len = random.randint(1, 140)
                     # for char in paragraph:
                     #     tokenizer.add_char(char)
                     paragraph = " "
@@ -136,9 +136,14 @@ class WikiTextImage(Dataset):
 
         image = image.convert('L')
 
+        # if y + 2 * max_word_height < self.max_img_h:
+        #     img = np.asarray(image)
+        #     img[y + max_word_height:, :] = 0
         if self.transform:
             image = self.transform(image)
         image = nested_tensor_from_tensor_list(image.unsqueeze(0), self.max_img_w, self.max_img_h)
+        if y + 2 * max_word_height < self.max_img_h:
+            image.mask[0][y + max_word_height:, :] = True
 
         caption, cap_mask = self.tokenizer.encode([gt], max_length=self.max_length)
         cap_mask = (1 - cap_mask).type(torch.bool).squeeze(0)

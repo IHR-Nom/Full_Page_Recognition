@@ -6,7 +6,7 @@ class Config(object):
 
         # Epochs
         self.epochs = 200
-        self.lr_drop = 20
+        self.lr_drop = 50
         self.start_epoch = 0
         self.weight_decay = 1e-4
 
