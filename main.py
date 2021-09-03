@@ -35,7 +35,7 @@ def main(config):
                           iaa.OneOf([iaa.Dropout(p=(0, 0.1))]))
         ])
     train_transform = torchvision.transforms.Compose([
-        torchvision.transforms.RandomRotation(5, fill=255),
+        # torchvision.transforms.RandomRotation(5, fill=255),
         lambda x: np.asarray(x),
         # lambda x: augment.augment_image(x),
         torchvision.transforms.ToTensor()

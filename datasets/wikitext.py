@@ -55,7 +55,7 @@ class WikiTextImage(Dataset):
 
         with open(self.root, 'r') as file:
             paragraph = ""
-            max_paragraph_len = 140
+            max_paragraph_len = 180
             paragraph_len = 0
             for line in file:
                 if line.startswith(" \n"):
@@ -66,7 +66,7 @@ class WikiTextImage(Dataset):
                     paragraph += ' '.join(words[: (max_paragraph_len - paragraph_len)])
                     for _ in range(repeat):
                         self.image_ground_truth.append(paragraph)
-                    max_paragraph_len = random.randint(1, 140)
+                    # max_paragraph_len = random.randint(1, 140)
                     # for char in paragraph:
                     #     tokenizer.add_char(char)
                     paragraph = " "
@@ -103,8 +103,8 @@ class WikiTextImage(Dataset):
         drawer = ImageDraw.Draw(image)
         current_font_size, sentence_w = random.randint(50, 55), 0
         spacing = random.randint(1, 3) / 2.
-        margin = random.randint(int(self.max_img_w * 5 / 100), int(self.max_img_w * 10 / 100))
-        margin_top = random.randint(int(self.max_img_h * 3 / 100), int(self.max_img_h * 6 / 100))
+        margin = 0
+        margin_top = 0
         # random_font = random.choice(glob.glob(os.path.join(self.font_dir, '**', '*.[o|t]tf')))
         random_font = '/data2/mvu/fonts/veteran_typewriter/veteran typewriter.ttf'
         if os.path.basename(random_font) in font_size_map:
@@ -138,7 +138,7 @@ class WikiTextImage(Dataset):
 
         # if y + 2 * max_word_height < self.max_img_h:
         #     img = np.asarray(image)
-        #     img[y + max_word_height:, :] = 0
+        #     img[y:, :] = 0
         if self.transform:
             image = self.transform(image)
         image = nested_tensor_from_tensor_list(image.unsqueeze(0), self.max_img_w, self.max_img_h)
