@@ -49,8 +49,8 @@ class Transformer(nn.Module):
         query_embed = self.embeddings.position_embeddings.weight.unsqueeze(1)
         query_embed = query_embed.repeat(1, bs, 1)
 
-        # memory = self.encoder(src, src_key_padding_mask=mask, pos=pos_embed)
-        hs = self.decoder(tgt, src, memory_key_padding_mask=mask, tgt_key_padding_mask=tgt_mask,
+        memory = self.encoder(src, src_key_padding_mask=mask, pos=pos_embed)
+        hs = self.decoder(tgt, memory, memory_key_padding_mask=mask, tgt_key_padding_mask=tgt_mask,
                           pos=pos_embed, query_pos=query_embed,
                           tgt_mask=generate_square_subsequent_mask(len(tgt)).to(tgt.device))
 
